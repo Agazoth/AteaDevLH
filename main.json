@@ -1,0 +1,77 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "mspOfferName": {
+      "type": "string",
+      "defaultValue": "Atea Managed Backup"
+    },
+    "mspOfferDescription": {
+      "type": "string",
+      "defaultValue": "Atea Managed Backup provides a unified view of all your backup solutions, both on-premise and in the cloud"
+    },
+    "managedByTenantId": {
+      "type": "string",
+      "defaultValue": "65f51067-7d65-4aa9-b996-4cc43a0d7111"
+    },
+    "authorizations": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "principalId": "39be2f57-be04-4719-9013-8a9119faf047",
+          "roleDefinitionId": "5e467623-bb1f-42f4-a55d-6e525e11384b",
+          "principalIdDisplayName": "Backup Contributors"
+        },
+        {
+          "principalId": "39be2f57-be04-4719-9013-8a9119faf047",
+          "roleDefinitionId": "d73bb868-a0df-4d4d-bd69-98a00b01fccb",
+          "principalIdDisplayName": "Backup Virtual Machine Contributor"
+        },
+        {
+          "principalId": "39be2f57-be04-4719-9013-8a9119faf047",
+          "roleDefinitionId": "92aaf0da-9dab-42b6-94a3-d43ce8d16293",
+          "principalIdDisplayName": "Log Analytics Contributor"
+        },
+        {
+          "principalId": "39be2f57-be04-4719-9013-8a9119faf047",
+          "roleDefinitionId": "749f88d5-cbae-40b8-bcfc-e573ddc772fa",
+          "principalIdDisplayName": "Monitoring Contributor"
+        },
+        {
+          "principalId": "d2f3f387-6e99-477d-896b-900dfe3a83d0",
+          "roleDefinitionId": "91c1777a-f3dc-4fae-b103-61d183457e46",
+          "principalIdDisplayName": "Managed Services Registration assignment Delete Role"
+        }
+      ]
+    }
+  },
+  "functions": [],
+  "variables": {
+    "mspRegistrationName_var": "[guid(parameters('mspOfferName'))]",
+    "mspAssignmentName_var": "[guid(parameters('mspOfferName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ManagedServices/registrationDefinitions",
+      "apiVersion": "2019-09-01",
+      "name": "[variables('mspRegistrationName_var')]",
+      "properties": {
+        "registrationDefinitionName": "[parameters('mspOfferName')]",
+        "description": "[parameters('mspOfferDescription')]",
+        "managedByTenantId": "[parameters('managedByTenantId')]",
+        "authorizations": "[parameters('authorizations')]"
+      }
+    },
+    {
+      "type": "Microsoft.ManagedServices/registrationAssignments",
+      "apiVersion": "2019-09-01",
+      "name": "[variables('mspAssignmentName_var')]",
+      "properties": {
+        "registrationDefinitionId": "[resourceId('Microsoft.ManagedServices/registrationDefinitions', variables('mspRegistrationName_var'))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedServices/registrationDefinitions', variables('mspRegistrationName_var'))]"
+      ]
+    }
+  ]
+}
